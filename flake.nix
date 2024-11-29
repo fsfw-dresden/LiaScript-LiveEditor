@@ -26,7 +26,7 @@
 
           buildPhase = ''
             export HOME=$(mktemp -d)
-            yarn install
+            yarn install --offline
             yarn build
           '';
 
