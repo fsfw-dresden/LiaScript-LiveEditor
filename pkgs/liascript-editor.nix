@@ -13,11 +13,11 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "liascript-editor";
   version = "1.0.0";
 
-  src = ./.;
+  src = ../.;
 
   yarnOfflineCache = fetchYarnDeps {
-    yarnLock = ./yarn.lock;
-    hash = "sha256-trTQybqONImipaS9CreT+WLSwxYMkjF756bskcyZ1Nw=";
+    yarnLock = ../yarn.lock;
+    hash = lib.fakeHash;
   };
 
   nativeBuildInputs = [
