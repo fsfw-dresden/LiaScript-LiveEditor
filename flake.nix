@@ -26,7 +26,9 @@
 
           buildPhase = ''
             export HOME=$(mktemp -d)
-            yarn install --offline
+            # First ensure we have all dependencies downloaded
+            yarn install --frozen-lockfile
+            # Then build with the cached dependencies
             yarn build
           '';
 
