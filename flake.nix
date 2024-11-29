@@ -26,9 +26,18 @@
 
           buildPhase = ''
             export HOME=$(mktemp -d)
-            # First ensure we have all dependencies downloaded
-            yarn install --frozen-lockfile
-            # Then build with the cached dependencies
+            # Copy user's yarn cache if it exists
+            if [ -d "$HOME/.yarn/cache" ]; then
+              mkdir -p $HOME/.yarn
+              cp -r $HOME/.yarn/cache $HOME/.yarn/
+            fi
+            # Install dependencies using offline mode if cache exists, otherwise normal install
+            if [ -d "$HOME/.yarn/cache" ]; then
+              yarn install --offline --frozen-lockfile
+            else
+              yarn install --frozen-lockfile
+            fi
+            # Build the application
             yarn build
           '';
 
