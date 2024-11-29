@@ -4,7 +4,9 @@
   "description": "LiveEditor for LiaScript",
   "scripts": {
     "sw": "npx workbox injectManifest workbox-config.js",
-    "build": "rm -rf dist && npm run build:index && npm run purge && npm run sw && npm run build:examples && npm run minify:js",
+    "build": "rm -rf dist && npm run build:index && npm run purge && npm run sw && npm run build:examples && npm run minify:js && npm run build:electron",
+    "build:electron": "electron-builder build --mac --win --linux",
+    "electron": "electron .",
     "build:index": "npx parcel build src/index.html --no-source-maps --public-url ./",
     "build:examples": "npx parcel build src/examples.html --no-source-maps --public-url ./",
     "watch": "rm -rf dist && npx parcel serve src/*.html --no-cache --no-source-maps --open --port 4321",
@@ -25,6 +27,8 @@
   },
   "devDependencies": {
     "@parcel/packager-raw-url": "^2.12.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
     "@parcel/reporter-bundle-analyzer": "^2.12.0",
     "@parcel/transformer-sass": "^2.12.0",
     "@parcel/transformer-vue": "^2.12.0",
@@ -71,5 +75,26 @@
   ],
   "browserslist": [
     "cover 80.0%"
-  ]
+  ],
+  "main": "electron/main.js",
+  "build": {
+    "appId": "com.liascript.editor",
+    "productName": "LiaScript Editor",
+    "directories": {
+      "output": "electron-dist"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.education"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"]
+    },
+    "win": {
+      "target": "nsis"
+    }
+  }
 }
