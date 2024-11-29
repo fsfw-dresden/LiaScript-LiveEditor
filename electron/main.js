@@ -12,7 +12,7 @@ function createWindow() {
   })
 
   // Load the local file in production, dev server in development
-  if (app.isPackaged) {
+  if (!app.isPackaged) {
     win.loadFile(path.join(__dirname, '../dist/index.html'))
   } else {
     win.loadURL('http://localhost:4321')
