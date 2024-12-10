@@ -2,6 +2,26 @@
 const INIT_CODE = `
 var blob = {};
 
+const fixImageUrls = function() {
+  const images = document.querySelectorAll('img,picture');
+  const origin = window.location.origin;
+  for (let i = 0; i < images.length; i++) {
+    let image = images[i];
+    console.log("image.src", image.src);
+    if (image.src && image.src.includes(origin + '/http')) {
+      image.src = image.src.replace(origin + '/http', 'http');
+    }
+  }
+};
+
+
+// Run URL fix whenever DOM changes
+const observer = new MutationObserver(fixImageUrls);
+observer.observe(document.body, {
+  childList: true,
+  subtree: true
+});
+
 window.injectHandler = function (param) {
   let url
 

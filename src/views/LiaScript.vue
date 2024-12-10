@@ -48,10 +48,16 @@ window.MonacoEnvironment = {
   },
 };
 
+type SyncedFileHash = string;
+
+type SyncedFiles = {
+  [key: string]: SyncedFileHash;
+}
+
 export default {
   name: "LiaScript",
 
-  props: ["storageId", "content", "fileUrl", "connection", "embed", "mode"],
+  props: ["storageId", "content", "initialContent", "fileUrl", "connection", "embed", "mode", "enableSync"],
 
   data() {
     let database: Dexie | undefined;
@@ -92,6 +98,7 @@ export default {
       onlineUsers: 0,
       lights: false,
       autoCompile: true,
+      autoPublish: false,
       conn: {
         type: connectionType,
         users: 0,
@@ -99,6 +106,10 @@ export default {
       resizing: false,
       LiaScriptURL,
       debouncedCompile: null,
+      debouncedPublish: null,
+      localFileSyncServer: "http://localhost:9000/sync",
+      syncedFiles: {},
+      enableSync: this.$props.enableSync || false,
     };
   },
 
@@ -300,7 +311,7 @@ export default {
         Optionally you can modify the URL with one of the following, to open the editor or the preview directly:<br>
 
         <code>?/embed/code/edit</code> or <code>?/embed/code/preview</code>
-
+W
         <hr>
 
         ${this.bytesInfo(zipCode)}
@@ -363,6 +374,95 @@ export default {
       });
     },
 
+    async syncViaHttp() {
+      const documentId = this.$props.storageId || "defaultDocument"; // Use storageId or a default name
+      const currentContent = this.$refs.editor.getValue();
+      const currentHash = await this.hashContent(currentContent);
+      
+      // Check if the content has changed
+      if (this.syncedFiles['content'] === currentHash) {
+        console.log("No changes detected, skipping sync.");
+        return; // No changes, skip sync
+      }
+
+      type HTTPSyncRequestData = {
+        documentId: string;
+        fileName: string;
+        fileContent: string;
+        blobs: {
+          [key: string]: string;
+        };
+      }
+
+      // Prepare the data to send
+      const data: HTTPSyncRequestData = {
+        documentId: documentId,
+        fileName: "document.md", // You can customize this as needed
+        fileContent: currentContent,
+        blobs: {},
+      };
+
+      const uint8ArrayToBase64 = (array: Uint8Array): string => {
+        let binary = '';
+        for (let i = 0; i < array.length; i++) {
+          binary += String.fromCharCode(array[i]);
+        }
+        return btoa(binary);
+      }
+
+      // Track new hashes to update only after successful sync
+      const newHashes: { [key: string]: string } = {
+        content: currentHash
+      };
+
+      // Include blobs
+      const blobs = this.$refs.editor.getAllBlobs();
+      for (const blob of blobs) {
+        const blobHash = await this.hashContent(blob.data);
+        if (this.syncedFiles[blob.name] !== blobHash) {
+          console.log("Blob changed:", blob.name);
+          newHashes[blob.name] = blobHash; // Track new hash
+          data.blobs[blob.name] = uint8ArrayToBase64(blob.data); // Add blob data to the request
+        } else {
+          console.log("Blob unchanged:", blob.name);
+        }
+      }
+
+      // Send the data via POST request
+      try {
+        const response = await fetch(this.localFileSyncServer, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Only update hashes after successful sync
+        Object.assign(this.syncedFiles, newHashes);
+        const result = await response.json(); 
+        console.log("Sync successful");
+        if(result.fileContent) {
+          this.$refs.editor.clearAllBlobs();
+          this.$refs.editor.setValue(result.fileContent);
+        }
+      } catch (error) {
+        console.error("Error syncing data:", error);
+      }
+    },
+
+    async hashContent(content: string) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(content);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    },
+
     fork() {
       this.$refs.editor.fork();
     },
@@ -396,12 +496,22 @@ export default {
       console.log("liascript: editor ready");
       this.editorIsReady = true;
       this.lights = this.$refs.editor.lights;
+      if(this.$props.initialContent) {
+        console.log("liascript: initContent");
+        this.$refs.editor.initContent(this.$props.initialContent);
+      }
       this.debouncedCompile = this.createDebounce(() => {
         if (this.autoCompile) {
           this.compile();
         }
       }, 1000);
+      this.debouncedPublish = this.createDebounce(() => {
+        if (this.autoPublish) {
+          this.syncViaHttp();
+        }
+      }, 3000);
       this.$refs.editor.onChange(this.debouncedCompile);
+      this.$refs.editor.onChange(this.debouncedPublish);
       this.compile();
     },
 
@@ -521,6 +631,26 @@ export default {
 
 
       <div class="btn-toolbar btn-group-sm" role="toolbar" aria-label="Toolbar with button groups">
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary me-2 px-3"
+          @click="syncViaHttp()"
+          title="Publish document"
+        >
+          <i class="bi bi-upload"></i>
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary me-2 px-3"
+          :class="{ 'active': autoPublish }"
+          @click="autoPublish = !autoPublish"
+          title="Auto publish"
+        >
+          <i class="bi bi-upload"></i>
+        </button>
+
         <button
           type="button"
           class="btn btn-outline-secondary me-2 px-3"

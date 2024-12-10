@@ -735,6 +735,10 @@ I (study) ~[[ am going to study ]]~ harder this term.
 
       return blobs;
     },
+    clearAllBlobs() {
+      if (!this.blob) return;
+      this.blob.clear();
+    },  
 
     gotoLine(line: number) {
       if (Editor) {
@@ -765,6 +769,32 @@ I (study) ~[[ am going to study ]]~ harder this term.
 
         navigateTo("?/edit/" + id);
       });
+    },
+
+    initContent(content: string) {
+      console.log("liascript: initContent start");
+      if(this.storageId) {
+        const yDoc = new Y.Doc();
+        const yText = yDoc.getText(this.storageId);
+        yText.insert(0, content);
+        const indexeddbProvider = new IndexeddbPersistence(this.storageId, yDoc);
+        indexeddbProvider.on("synced", (event: any) => {
+          console.log("liascript: initContent done");
+          Editor.setValue(content);
+        });
+      }
+    },
+
+    setValue(content: string) {
+      if (Editor) {
+        const position = Editor.getPosition();
+        Editor.setValue(content);
+        try {
+          Editor.setPosition(position);
+        } catch (e) {
+          console.log("liascript: setValue error", e);
+        }
+      }
     },
 
     initEditor(code: string) {
