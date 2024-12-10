@@ -91,12 +91,14 @@ export default {
       meta: {},
       onlineUsers: 0,
       lights: false,
+      autoCompile: true,
       conn: {
         type: connectionType,
         users: 0,
       },
       resizing: false,
       LiaScriptURL,
+      debouncedCompile: null,
     };
   },
 
@@ -114,6 +116,20 @@ export default {
   },
 
   methods: {
+    createDebounce(func: Function, wait: number) {
+      let timeout: NodeJS.Timeout | null = null;
+
+      return function (...args: any[]) {
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+        
+        timeout = setTimeout(() => {
+          func.apply(this, args);
+        }, wait);
+      };
+    },
+
     urlPath(path: string[]) {
       return window.location.origin + window.location.pathname + "?/" + path.join("/");
     },
@@ -380,6 +396,12 @@ export default {
       console.log("liascript: editor ready");
       this.editorIsReady = true;
       this.lights = this.$refs.editor.lights;
+      this.debouncedCompile = this.createDebounce(() => {
+        if (this.autoCompile) {
+          this.compile();
+        }
+      }, 1000);
+      this.$refs.editor.onChange(this.debouncedCompile);
       this.compile();
     },
 
@@ -497,14 +519,27 @@ export default {
         </div>
       </div>
 
-      <button
-        type="button"
-        class="btn btn-outline-secondary me-2 px-3"
-        @click="compile()"
-        title="Compile (Ctrl+S)"
-      >
+
+      <div class="btn-toolbar btn-group-sm" role="toolbar" aria-label="Toolbar with button groups">
+        <button
+          type="button"
+          class="btn btn-outline-secondary me-2 px-3"
+          :class="{ 'active': autoCompile }"
+          @click="autoCompile = !autoCompile"
+          title="Auto compile"
+        >
+          <i :class="autoCompile ? 'bi bi-check' : 'bi bi-x'"></i>
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-outline-secondary me-2 px-3"
+          @click="compile()"
+          title="Compile (Ctrl+S)"
+        >
         <i class="bi bi-arrow-counterclockwise"></i>
-      </button>
+        </button>
+      </div>
 
       <!-- Drop-Down Navigation -->
 
