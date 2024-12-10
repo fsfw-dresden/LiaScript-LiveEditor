@@ -3,6 +3,7 @@ import Index from './views/Index.vue'
 import Edit from './views/Edit.vue'
 import File from './views/File.vue'
 import Zip from './views/Zip.vue'
+import Tutor from './views/Tutor.vue'
 import GitHubExporter from './views/Export/GitHub.vue'
 import AudioRecorder from 'vue3-mic-recorder'
 import { randomString } from './ts/utils'
@@ -70,6 +71,7 @@ const router = async () => {
 
     { path: '/show/code/:zipCode', view: Zip },
     { path: '/show/file/:fileUrl', view: File },
+    { path: '/tutor/:fileUrl', view: Tutor },
     {
       path: '/export/github/&code=:code&state=:stepId2',
       view: GitHubExporter,
