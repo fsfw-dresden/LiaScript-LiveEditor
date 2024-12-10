@@ -169,6 +169,12 @@ export default {
       }
     },
 
+    onChange(listener: (event: any) => void) {
+      if (Editor) {
+        Editor.onDidChangeModelContent(listener);
+      }
+    },
+
     make(cmd: string, data: any = null) {
       if (!Editor) return;
 
