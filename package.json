@@ -4,7 +4,7 @@
   "description": "LiveEditor for LiaScript",
   "scripts": {
     "sw": "npx workbox injectManifest workbox-config.js",
-    "build": "rm -rf dist && npm run build:index && npm run purge && npm run sw && npm run build:examples && npm run minify:js && npm run build:electron",
+    "build": "rm -rf dist && npm run build:index && npm run purge && npm run sw && npm run build:examples && npm run minify:js",
     "build:electron": "electron-builder build --mac --win --linux",
     "electron": "electron .",
     "build:index": "npx parcel build src/index.html --no-source-maps --public-url ./",
