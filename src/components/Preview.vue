@@ -1,18 +1,42 @@
 <script lang="ts">
+import { StorageServerURL } from '../ts/utils';
+
 const INIT_CODE = `
 var blob = {};
-
+var StorageServerURL = "${StorageServerURL}";
+window.hasBlob = {};
 const fixImageUrls = function() {
-  const images = document.querySelectorAll('img,picture');
+
   const origin = window.location.origin;
+  const parentUrl = window.parent.location.href;
+  const documentId = parentUrl.split('?/tutor/')[1];
+  const documentPath = documentId.split('/').slice(0, -1).join('/');
+
+  function checkUrlNeedsReplacement(url) {
+    return url && !url.startsWith('blob:') && url.includes(origin) && !url.startsWith(origin + '/liascript/');
+  }
+  
+  const images = document.querySelectorAll('img,picture');
   for (let i = 0; i < images.length; i++) {
     let image = images[i];
-    console.log("image.src", image.src);
-    if (image.src && image.src.includes(origin + '/http')) {
-      image.src = image.src.replace(origin + '/http', 'http');
+    if (checkUrlNeedsReplacement(image.src)) {
+      image.src = image.src.replace(origin, StorageServerURL + '/static/' + documentPath);
     }
   }
-};
+
+  const mediaSelector = ['video', 'audio'];
+  const mediaTags = document.querySelectorAll(mediaSelector.join(','));
+  for (let i = 0; i < mediaTags.length; i++) {
+    let media = mediaTags[i];
+    const sources = media.querySelectorAll('source');
+    for (let j = 0; j < sources.length; j++) {
+      let source = sources[j];
+      if (checkUrlNeedsReplacement(source.src)) {
+        source.src = source.src.replace(origin, StorageServerURL + '/static/' + documentPath);
+      }
+    }
+  }
+}
 
 
 // Run URL fix whenever DOM changes
@@ -24,6 +48,8 @@ observer.observe(document.body, {
 
 window.injectHandler = function (param) {
   let url
+
+  console.log("param", param);
 
   if (blob[param.src]) {
     url = blob[param.src]
@@ -42,7 +68,8 @@ window.injectHandler = function (param) {
       const images = document.querySelectorAll('img,picture')
       for (let i = 0; i < images.length; i++) {
         let image = images[i]
-        if (image.src == src) {
+        if (image.src == src || image.src.endsWith(param.src)) {
+          console.log("image.src includes", image.src);
           image.src = url
 
           if (image.onclick) {
