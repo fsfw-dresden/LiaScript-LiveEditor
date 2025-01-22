@@ -1,7 +1,7 @@
 <script lang="ts">
 import LiaScript from "./LiaScript.vue";
 import Toast from "../components/Toast.vue";
-import { LiaScriptURL, LiveEditorURL } from "../ts/utils";
+import { LiaScriptURL, LiveEditorURL, StorageServerURL } from "../ts/utils";
 
 function errorMsg(url: string, response: string) {
   return `# Ups, something went wrong
@@ -35,7 +35,8 @@ export default {
   },
 
   async created() {
-    const response = await fetch(this.fileUrl);
+    const response = await fetch(StorageServerURL + '/static/' + this.fileUrl);
+
 
     if (response.ok) {
       this.data = await response.text();
