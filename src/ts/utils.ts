@@ -1,6 +1,9 @@
 export const LiaScriptURL =
   process.env.LIASCRIPT || 'https://liascript.github.io/course/'
 
+export const StorageServerURL =
+  process.env.STORAGE_SERVER || 'http://localhost:9000'
+
 export const LiveEditorURL = window.location.origin + window.location.pathname
 
 /* This function is only required to generate a random string, that is used
