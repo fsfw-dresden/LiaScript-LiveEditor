@@ -1344,6 +1344,10 @@ W
     padding: 0.2rem 0.4rem;
   }
 }
+
+.tab-content {
+  background-color: white;
+}
 </style>
 
 <style>
