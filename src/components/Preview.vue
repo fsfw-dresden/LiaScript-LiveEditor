@@ -5,6 +5,26 @@ const INIT_CODE = `
 var blob = {};
 var StorageServerURL = "${StorageServerURL}";
 window.hasBlob = {};
+
+var style = document.createElement('style');
+style.innerHTML = \`
+  .lia-header {
+    border: none !important;
+    background: none !important;
+  }
+  .lia-header__middle {
+    display: none !important;
+  }
+  .lia-slide__container {
+    margin-top: 0px !important;
+  }
+  .lia-toc--closed #lia-btn-toc {
+    transform: translate(50vw, -50%) !important;
+  }
+\`;
+document.head.insertBefore(style, document.head.firstChild);
+
+
 const fixImageUrls = function() {
 
   const origin = window.location.origin;
