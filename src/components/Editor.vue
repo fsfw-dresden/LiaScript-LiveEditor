@@ -619,7 +619,7 @@ I (study) ~[[ am going to study ]]~ harder this term.
           // Alignment row
           tableStr += '|' + ' :--: |'.repeat(cols) + '\n'
           // Data rows
-          for (let i = 0; i < rows ; i++) {
+          for (let i = 0; i < rows; i++) {
             tableStr += '|' + ' Cell |'.repeat(cols) + '\n'
           }
           tableStr += '\n'
@@ -757,7 +757,7 @@ I (study) ~[[ am going to study ]]~ harder this term.
     clearAllBlobs() {
       if (!this.blob) return;
       this.blob.clear();
-    },  
+    },
 
     gotoLine(line: number) {
       if (Editor) {
@@ -792,7 +792,7 @@ I (study) ~[[ am going to study ]]~ harder this term.
 
     initContent(content: string) {
       console.log("liascript: initContent start");
-      if(this.storageId) {
+      if (this.storageId) {
         const yDoc = new Y.Doc();
         const yText = yDoc.getText(this.storageId);
         yText.insert(0, content);
@@ -1239,527 +1239,294 @@ I (study) ~[[ am going to study ]]~ harder this term.
 </script>
 
 <template>
-  <nav
-    v-if="toolbar"
-    class="navbar navbar-light bg-light"
-    style="
+  <input type="file" id="imageInput" style="display: none" accept="image/*" />
+  <input type="file" id="audioInput" style="display: none" accept="audio/*" />
+  <input type="file" id="movieInput" style="display: none" accept="video/*" />
+  <nav v-if="toolbar" class="navbar navbar-light bg-light" style="
       border-top: solid lightgray 2px;
       border-bottom: solid lightgray 2px;
       padding: 0px;
-    "
-  >
+    ">
     <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
       <div class="btn-group" role="group" aria-label="Text formatting">
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Bold"
-          @click="make('bold')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Bold" @click="make('bold')">
           <i class="bi bi-type-bold"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Italic"
-          @click="make('italic')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Italic" @click="make('italic')">
           <i class="bi bi-type-italic"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Heading"
-          @click="make('header')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Heading" @click="make('header')">
           <i class="bi bi-type-h1"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Strikethrough"
-          @click="make('strikethrough')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Strikethrough"
+          @click="make('strikethrough')">
           <i class="bi bi-type-strikethrough"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Underline"
-          @click="make('underline')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Underline" @click="make('underline')">
           <i class="bi bi-type-underline"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Superscript"
-          @click="make('superscript')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Superscript" @click="make('superscript')">
           <i class="bi bi-superscript"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Inline Code"
-          @click="make('code-inline')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Inline Code" @click="make('code-inline')">
           <i class="bi bi-code"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Keyboard"
-          @click="make('keyboard')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Keyboard" @click="make('keyboard')">
           <i class="bi bi-keyboard"></i>
         </button>
       </div>
 
       <div class="btn-group" role="group" aria-label="Code Blocks">
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Code Block"
-          @click="make('code')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Code Block" @click="make('code')">
           <i class="bi bi-code-slash"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Executable Code"
-          @click="make('code-executable')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Executable Code"
+          @click="make('code-executable')">
           <i class="bi bi-terminal"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Executable Code Project"
-          @click="make('code-project')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Executable Code Project"
+          @click="make('code-project')">
           <i class="bi bi-terminal-split"></i>
         </button>
       </div>
 
       <div class="btn-group" role="group" aria-label="Block types">
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Quote"
-          @click="make('quote')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Quote" @click="make('quote')">
           <i class="bi bi-quote"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="List"
-          @click="make('list-unordered')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="List" @click="make('list-unordered')">
           <i class="bi bi-list-ul"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Numbered List"
-          @click="make('list-ordered')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Numbered List"
+          @click="make('list-ordered')">
           <i class="bi bi-list-ol"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Check List"
-          @click="make('list-check')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Check List" @click="make('list-check')">
           <i class="bi bi-check-square"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Table"
-          @click="make('table')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Table" @click="make('table')">
           <i class="bi bi-table"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Horizontal Line"
-          @click="make('line')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Horizontal Line" @click="make('line')">
           <i class="bi bi-hr"></i>
         </button>
       </div>
 
       <div class="btn-group" role="group" aria-label="Embed or Link to Multimedia">
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Link"
-          @click="make('link')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Link" @click="make('link')">
           <i class="bi bi-link-45deg"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Image"
-          @click="make('image')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Image" @click="make('image')">
           <i class="bi bi-image"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Audio"
-          @click="make('audio')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Audio" @click="make('audio')">
           <i class="bi bi-music-note-beamed"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Movie"
-          @click="make('movie')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Movie" @click="make('movie')">
           <i class="bi bi-film"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Try to embed any kind of link"
-          @click="make('oembed')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Try to embed any kind of link"
+          @click="make('oembed')">
           <i class="bi bi-puzzle"></i>
         </button>
       </div>
 
-      <input type="file" id="imageInput" style="display: none" accept="image/*" />
-      <input type="file" id="audioInput" style="display: none" accept="audio/*" />
-      <input type="file" id="movieInput" style="display: none" accept="video/*" />
       <div class="btn-group" role="group" aria-label="Upload Multiline">
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Upload Image"
-          @click="make('upload-image')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Upload Image"
+          @click="make('upload-image')">
           <i class="bi bi-upload"></i>
           <i class="bi bi-image icon-overlay"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Upload Audio"
-          @click="make('upload-audio')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Upload Audio"
+          @click="make('upload-audio')">
           <i class="bi bi-upload"></i>
           <i class="bi bi-music-note-beamed icon-overlay"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Upload Movie"
-          @click="make('upload-movie')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Upload Movie"
+          @click="make('upload-movie')">
           <i class="bi bi-upload"></i>
           <i class="bi bi-film icon-overlay"></i>
         </button>
       </div>
 
       <div class="btn-group" role="group" aria-label="LiaScript Effects">
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Animation"
-          @click="make('animation')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Animation" @click="make('animation')">
           <i class="bi bi-lightning-fill"></i>
           <i class="bi bi-easel icon-overlay"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Comment"
-          @click="make('comment')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Comment" @click="make('comment')">
           <i class="bi bi-chat-text"></i>
           <i class="bi bi-easel icon-overlay"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Speak out loud"
-          @click="make('tts')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Speak out loud" @click="make('tts')">
           <i class="bi bi-play-circle"></i>
           <i class="bi bi-easel icon-overlay"></i>
         </button>
       </div>
 
       <div class="btn-group" role="group" aria-label="Quizzes">
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Single Choice Quiz"
-          @click="make('quiz-single-choice')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Single Choice Quiz"
+          @click="make('quiz-single-choice')">
           <i class="bi bi-x-circle"></i>
           <i class="bi bi-question-lg icon-overlay"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Multiple Choice Quiz"
-          @click="make('quiz-multiple-choice')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Multiple Choice Quiz"
+          @click="make('quiz-multiple-choice')">
           <i class="bi bi-x-square"></i>
           <i class="bi bi-question-lg icon-overlay"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Text Input Quiz"
-          @click="make('quiz-input')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Text Input Quiz"
+          @click="make('quiz-input')">
           <i class="bi bi-input-cursor-text"></i>
           <i class="bi bi-question-lg icon-overlay"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Selection Quiz"
-          @click="make('quiz-selection')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Selection Quiz"
+          @click="make('quiz-selection')">
           <i class="bi bi-option"></i>
           <i class="bi bi-question-lg icon-overlay"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Matrix Quiz"
-          @click="make('quiz-matrix')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Matrix Quiz" @click="make('quiz-matrix')">
           <i class="bi bi-grid-3x3-gap"></i>
           <i class="bi bi-question-lg icon-overlay"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Gap Text"
-          @click="make('quiz-gap-text')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Gap Text" @click="make('quiz-gap-text')">
           <i class="bi bi-body-text"></i>
           <i class="bi bi-question-lg icon-overlay"></i>
         </button>
       </div>
 
       <div class="btn-group" role="group" aria-label="Formulas with KaTeX">
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Inline Formula"
-          @click="make('formula-inline')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Inline Formula"
+          @click="make('formula-inline')">
           <i class="bi bi-currency-dollar"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Formula Block"
-          @click="make('formula')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Formula Block" @click="make('formula')">
           <i class="bi bi-currency-dollar"></i>
           <i class="bi bi-currency-dollar icon-overlay"></i>
         </button>
       </div>
 
       <div class="btn-group" role="group" aria-label="ASCII-art drawings">
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Graph"
-          @click="make('graph')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Graph" @click="make('graph')">
           <i class="bi bi-graph-down"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="ASCII-Art"
-          @click="make('ascii')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="ASCII-Art" @click="make('ascii')">
           <i class="bi bi-boxes"></i>
         </button>
       </div>
 
       <div class="btn-group" role="group" aria-label="MathJS helpers">
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="MathJS - Evaluate Expression (Ctrl+E)"
-          @click="make('mathjs-evaluate')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="MathJS - Evaluate Expression (Ctrl+E)"
+          @click="make('mathjs-evaluate')">
           <i class="bi bi-gear"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="MathJS - Simplify Expression (Ctrl+M)"
-          @click="make('mathjs-simplify')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="MathJS - Simplify Expression (Ctrl+M)"
+          @click="make('mathjs-simplify')">
           <i class="bi bi-gear"></i>
           <i class="bi bi-lightning-charge icon-overlay"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="MathJS - Convert to TeX (Ctrl+O)"
-          @click="make('mathjs-tex')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="MathJS - Convert to TeX (Ctrl+O)"
+          @click="make('mathjs-tex')">
           <i class="bi bi-gear"></i>
           <i class="bi icon-overlay">TeX</i>
         </button>
       </div>
 
       <div class="btn-group" role="group">
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Initialize empty document"
-          @click="make('init')"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Initialize empty document"
+          @click="make('init')">
           <i class="bi bi-rocket-takeoff"></i>
         </button>
       </div>
 
       <div class="btn-group" role="group">
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Open audio recorder"
-          @click="recorder.audio = true"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Open audio recorder"
+          @click="recorder.audio = true">
           <i class="bi bi-mic"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Open webcam recorder"
-          @click="recorder.webcam = true"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Open webcam recorder"
+          @click="recorder.webcam = true">
           <i class="bi bi-webcam"></i>
         </button>
 
-        <button
-          class="btn btn-sm btn-outline-secondary"
-          type="button"
-          title="Open desktop recorder"
-          @click="recorder.desktop = true"
-        >
+        <button class="btn btn-sm btn-outline-secondary" type="button" title="Open desktop recorder"
+          @click="recorder.desktop = true">
           <i class="bi bi-camera-reels"></i>
         </button>
       </div>
     </div>
   </nav>
 
-  <div
-    style="
+  <div style="
       z-index: 100;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-    "
-    v-if="recorder.audio"
-  >
+    " v-if="recorder.audio">
     <div>
-      <button
-        type="button"
-        class="btn-close"
-        aria-label="Close"
-        style="position: absolute; z-index: 101; right: 12px; top: 10px"
-        @click="recorder.audio = false"
-      ></button>
+      <button type="button" class="btn-close" aria-label="Close"
+        style="position: absolute; z-index: 101; right: 12px; top: 10px" @click="recorder.audio = false"></button>
       <audio-recorder :attempts="3" :time="2" :customUploader="storeAudioFile" />
     </div>
   </div>
 
-  <div
-    style="
+  <div style="
       z-index: 100;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-    "
-    v-if="recorder.webcam"
-  >
+    " v-if="recorder.webcam">
     <div>
-      <button
-        type="button"
-        class="btn-close"
-        aria-label="Close"
-        style="position: absolute; z-index: 101; right: 12px; top: 10px"
-        @click="recorder.webcam = false"
-      ></button>
+      <button type="button" class="btn-close" aria-label="Close"
+        style="position: absolute; z-index: 101; right: 12px; top: 10px" @click="recorder.webcam = false"></button>
       <Recorder :storeBlob="storeVideoFile" stream="webcam" />
     </div>
   </div>
 
-  <div
-    style="
+  <div style="
       z-index: 100;
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-    "
-    v-if="recorder.desktop"
-  >
+    " v-if="recorder.desktop">
     <div>
-      <button
-        type="button"
-        class="btn-close"
-        aria-label="Close"
-        style="position: absolute; z-index: 101; right: 12px; top: 10px"
-        @click="recorder.desktop = false"
-      ></button>
+      <button type="button" class="btn-close" aria-label="Close"
+        style="position: absolute; z-index: 101; right: 12px; top: 10px" @click="recorder.desktop = false"></button>
       <Recorder :storeBlob="storeVideoFile" stream="desktop" />
     </div>
   </div>
@@ -1816,6 +1583,7 @@ I (study) ~[[ am going to study ]]~ harder this term.
 .yRemoteSelection {
   background-color: rgb(250, 129, 0, 0.5);
 }
+
 .yRemoteSelectionHead {
   position: absolute;
   border-left: orange solid 2px;
@@ -1824,6 +1592,7 @@ I (study) ~[[ am going to study ]]~ harder this term.
   height: 100%;
   box-sizing: border-box;
 }
+
 .yRemoteSelectionHead::after {
   position: absolute;
   content: " ";
