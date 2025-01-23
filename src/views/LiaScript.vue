@@ -5,6 +5,7 @@ import Dexie from "../ts/indexDB";
 import Editor from "../components/Editor.vue";
 import Preview from "../components/Preview.vue";
 import Modal from "../components/Modal.vue";
+import TableInsertDropdown from "../components/TableInsertDropdown.vue";
 import { compress } from "shrink-string";
 
 import pako from "pako";
@@ -97,6 +98,7 @@ export default {
       meta: {},
       onlineUsers: 0,
       lights: false,
+      showLabels: false,
       autoCompile: true,
       autoPublish: false,
       conn: {
@@ -549,13 +551,489 @@ W
     },
   },
 
-  components: { Editor, Modal, Pane, Preview, Splitpanes },
+  components: { Editor, Modal, Pane, Preview, Splitpanes, TableInsertDropdown },
 };
 </script>
 
 <template>
   <nav class="navbar navbar-expand-lg bg-light">
-    <div class="container-fluid">
+    <div style="display: flex; flex-direction: column; width: 100%;">
+    <ul class="nav nav-tabs" id="editorTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="format-tab" data-bs-toggle="tab" data-bs-target="#format" type="button" role="tab" aria-controls="format" aria-selected="true">
+          <i class="bi bi-type"></i> Formatting
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="insert-tab" data-bs-toggle="tab" data-bs-target="#insert" type="button" role="tab" aria-controls="insert" aria-selected="false">
+          <i class="bi bi-plus-square"></i> Insert
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="view-tab" data-bs-toggle="tab" data-bs-target="#view" type="button" role="tab" aria-controls="view" aria-selected="false">
+          <i class="bi bi-eye"></i> View
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="record-tab" data-bs-toggle="tab" data-bs-target="#record" type="button" role="tab" aria-controls="record" aria-selected="false">
+          <i class="bi bi-record-circle"></i> Recording
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="options-tab" data-bs-toggle="tab" data-bs-target="#options" type="button" role="tab" aria-controls="options" aria-selected="false">
+          <i class="bi bi-gear"></i> Options
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="advanced-elements-tab" data-bs-toggle="tab" data-bs-target="#advanced-elements" type="button" role="tab" aria-controls="advanced-elements" aria-selected="false">
+          <i class="bi bi-plus-square"></i> Advanced Elements
+        </button>
+      </li>
+      </li>
+      <li class="nav-item ms-auto" role="presentation">
+        <div class="form-check form-switch pt-2 pe-3">
+          <input 
+            class="form-check-input" 
+            type="checkbox" 
+            role="switch" 
+            id="showLabelsSwitch"
+            v-model="showLabels"
+          >
+          <label class="form-check-label" for="showLabelsSwitch">
+            Show Labels
+          </label>
+        </div>
+      </li>
+    </ul>
+    <div class="tab-content p-2 border-bottom" id="editorTabContent">
+      <div class="tab-pane fade show active" id="format" role="tabpanel" aria-labelledby="format-tab">
+        <div class="btn-toolbar" role="toolbar">
+
+          <!-- Font Group -->
+          <div class="btn-group me-2" role="group" aria-label="Font">
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('bold')" title="Bold">
+              <i class="bi bi-type-bold"></i>
+              <div v-if="showLabels">Bold</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('italic')" title="Italic">
+              <i class="bi bi-type-italic"></i>
+              <div v-if="showLabels">Italic</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('strikethrough')" title="Strikethrough">
+              <i class="bi bi-type-strikethrough"></i>
+              <div v-if="showLabels">Strikethrough</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('underline')" title="Underline">
+              <i class="bi bi-type-underline"></i>
+              <div v-if="showLabels">Underline</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('superscript')" title="Superscript">
+              <i class="bi bi-superscript"></i>
+              <div v-if="showLabels">Superscript</div>
+            </button>
+          </div>
+        
+          <div class="btn-group me-2" role="group" aria-label="Heading">
+          <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('header')" title="Heading">
+            <i class="bi bi-type-h1"></i>
+            <div v-if="showLabels">Heading</div>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+            <span class="visually-hidden">Toggle Dropdown</span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><button class="dropdown-item"  @click="$refs.editor?.make('header', 1)">Heading 1</button></li>
+            <li><button class="dropdown-item"  @click="$refs.editor?.make('header', 2)">Heading 2</button></li>
+            <li><button class="dropdown-item"  @click="$refs.editor?.make('header', 3)">Heading 3</button></li>
+            <li><button class="dropdown-item"  @click="$refs.editor?.make('header', 4)">Heading 4</button></li>
+            <li><button class="dropdown-item"  @click="$refs.editor?.make('header', 5)">Heading 5</button></li>
+            <li><button class="dropdown-item"  @click="$refs.editor?.make('header', 6)">Heading 6</button></li>
+          </ul>
+          </div>
+
+
+          <!-- Paragraph Group -->
+          <div class="btn-group me-2" role="group" aria-label="Paragraph">
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('list-unordered')" title="Bullet List">
+              <i class="bi bi-list-ul"></i>
+              <div v-if="showLabels">Bullet List</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('list-ordered')" title="Numbered List">
+              <i class="bi bi-list-ol"></i>
+              <div v-if="showLabels">Numbered List</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('list-check')" title="Check List">
+              <i class="bi bi-check-square"></i>
+              <div v-if="showLabels">Check List</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('quote')" title="Quote">
+              <i class="bi bi-quote"></i>
+              <div v-if="showLabels">Quote</div>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+
+
+      <div class="tab-pane fade" id="insert" role="tabpanel" aria-labelledby="insert-tab">
+        <div class="btn-toolbar" role="toolbar">
+          <!-- Tables & Illustrations -->
+          <div class="btn-group me-2" role="group" aria-label="Tables & Illustrations">
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('table')" title="Table">
+              <i class="bi bi-table"></i>
+              <div v-if="showLabels">Table</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('image')" title="Picture">
+              <i class="bi bi-image"></i>
+              <div v-if="showLabels">Picture</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('graph')" title="Chart">
+              <i class="bi bi-graph-down"></i>
+              <div v-if="showLabels">Chart</div>
+            </button>
+          </div>
+
+          <!--Upload-->
+          <div class="btn-group" role="group" aria-label="Upload Multiline">
+            <button
+              class="btn btn-sm btn-outline-secondary"
+              type="button"
+              title="Upload Image"
+              @click="$refs.editor?.make('upload-image')"
+            >
+          <i class="bi bi-upload"></i>
+          <i class="bi bi-image icon-overlay"></i>
+          <div v-if="showLabels">Image Upload</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Upload Audio"
+          @click="$refs.editor?.make('upload-audio')"
+        >
+          <i class="bi bi-upload"></i>
+          <i class="bi bi-music-note-beamed icon-overlay"></i>
+          <div v-if="showLabels">Audio Upload</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Upload Movie"
+          @click="$refs.editor?.make('upload-movie')"
+        >
+          <i class="bi bi-upload"></i>
+          <i class="bi bi-film icon-overlay"></i>
+          <div v-if="showLabels">Movie Upload</div>
+        </button>
+      </div>
+
+
+          <!-- Table -->
+          <TableInsertDropdown @insert-table="$refs.editor?.make('multi-column-table', $event)" :showLabels="showLabels" />
+
+          <!-- Media -->
+          <div class="btn-group me-2" role="group" aria-label="Media">
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('audio')" title="Audio">
+              <i class="bi bi-music-note-beamed"></i>
+              <div v-if="showLabels">Audio</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('movie')" title="Video">
+              <i class="bi bi-film"></i>
+              <div v-if="showLabels">Video</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('oembed')" title="Embed Website">
+              <i class="bi bi-puzzle"></i>
+              <div v-if="showLabels">Embed Website</div>
+            </button>
+          </div>
+
+          <!-- Links -->
+          <div class="btn-group me-2" role="group" aria-label="Links">
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('link')" title="Link">
+              <i class="bi bi-link-45deg"></i>
+              <div v-if="showLabels">Link</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor?.make('line')" title="Horizontal Line">
+              <i class="bi bi-hr"></i>
+              <div v-if="showLabels">Horizontal Line</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="view" role="tabpanel" aria-labelledby="view-tab">
+        <div class="btn-toolbar" role="toolbar">
+          <!-- View Options -->
+          <div class="btn-group me-2" role="group" aria-label="View Options">
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="changeMode(-1)" title="Editor Only">
+              <i class="bi bi-pencil"></i>
+              <div v-if="showLabels">Editor Only</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="changeMode(0)" title="Split View">
+              <i class="bi bi-layout-split"></i>
+              <div v-if="showLabels">Split View</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="changeMode(1)" title="Preview Only">
+              <i class="bi bi-eye"></i>
+              <div v-if="showLabels">Preview Only</div>
+            </button>
+          </div>
+
+          <!-- Theme -->
+          <div class="btn-group me-2" role="group" aria-label="Theme">
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="switchLights()" title="Toggle Theme">
+              <i :class="lightMode"></i>
+              <div v-if="showLabels">Toggle Theme</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="record" role="tabpanel" aria-labelledby="record-tab">
+        <div class="btn-toolbar" role="toolbar">
+          <!-- Recording Options -->
+          <div class="btn-group me-2" role="group" aria-label="Recording Options">
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor.recorder.audio = true" title="Audio Recording">
+              <i class="bi bi-mic"></i>
+              <div v-if="showLabels">Audio Recording</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor.recorder.webcam = true" title="Video Recording">
+              <i class="bi bi-webcam"></i>
+              <div v-if="showLabels">Video Recording</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="$refs.editor.recorder.desktop = true" title="Screen Recording">
+              <i class="bi bi-camera-reels"></i>
+              <div v-if="showLabels">Screen Recording</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="options" role="tabpanel" aria-labelledby="options-tab">
+        <div class="btn-toolbar" role="toolbar">
+          <!-- Compile Options -->
+          <div class="btn-group me-2" role="group" aria-label="Compile Options">
+            <button type="button" class="btn btn-sm btn-outline-secondary" :class="{ 'active': autoCompile }" @click="autoCompile = !autoCompile" title="Auto Compile">
+              <i :class="autoCompile ? 'bi bi-check' : 'bi bi-x'"></i>
+              <div v-if="showLabels">Auto Compile</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="compile()" title="Compile (Ctrl+S)">
+              <i class="bi bi-arrow-counterclockwise"></i>
+              <div v-if="showLabels">Compile (Ctrl+S)</div>
+            </button>
+          </div>
+
+          <!-- Sync Options -->
+          <div class="btn-group me-2" role="group" aria-label="Sync Options">
+            <button type="button" class="btn btn-sm btn-outline-secondary" @click="syncViaHttp()" title="Publish">
+              <i class="bi bi-floppy"></i>
+              <div v-if="showLabels">Publish</div>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" :class="{ 'active': autoPublish }" @click="autoPublish = !autoPublish" title="Auto Publish">
+              <i class="bi bi-robot"></i>
+              <div v-if="showLabels">Auto Publish</div>
+            </button>
+          </div>
+
+        </div>
+      </div>
+      <!-- Advanced Elements -->
+      <div class="tab-pane fade" id="advanced-elements" role="tabpanel" aria-labelledby="advanced-elements-tab">
+        <div class="btn-toolbar" role="toolbar">
+          <!-- Advanced Elements -->
+
+
+      <div class="btn-group" role="group" aria-label="LiaScript Effects">
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Animation"
+          @click="$refs.editor?.make('animation')"
+        >
+          <i class="bi bi-lightning-fill"></i>
+          <i class="bi bi-easel icon-overlay"></i>
+          <div v-if="showLabels">Animation</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Comment"
+          @click="$refs.editor?.make('comment')"
+        >
+          <i class="bi bi-chat-text"></i>
+          <i class="bi bi-easel icon-overlay"></i>
+          <div v-if="showLabels">Comment</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Speak out loud"
+          @click="$refs.editor?.make('tts')"
+        >
+          <i class="bi bi-play-circle"></i>
+          <i class="bi bi-easel icon-overlay"></i>
+          <div v-if="showLabels">Speak out loud</div>
+        </button>
+      </div>
+
+      <div class="btn-group" role="group" aria-label="Quizzes">
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Single Choice Quiz"
+          @click="$refs.editor?.make('quiz-single-choice')"
+        >
+          <i class="bi bi-x-circle"></i>
+          <i class="bi bi-question-lg icon-overlay"></i>
+          <div v-if="showLabels">Single Choice Quiz</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Multiple Choice Quiz"
+          @click="$refs.editor?.make('quiz-multiple-choice')"
+        >
+          <i class="bi bi-x-square"></i>
+          <i class="bi bi-question-lg icon-overlay"></i>
+          <div v-if="showLabels">Multiple Choice Quiz</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Text Input Quiz"
+          @click="$refs.editor?.make('quiz-input')"
+        >
+          <i class="bi bi-input-cursor-text"></i>
+          <i class="bi bi-question-lg icon-overlay"></i>
+          <div v-if="showLabels">Text Input Quiz</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Selection Quiz"
+          @click="$refs.editor?.make('quiz-selection')"
+        >
+          <i class="bi bi-option"></i>
+          <i class="bi bi-question-lg icon-overlay"></i>
+          <div v-if="showLabels">Selection Quiz</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Matrix Quiz"
+          @click="$refs.editor?.make('quiz-matrix')"
+        >
+          <i class="bi bi-grid-3x3-gap"></i>
+          <i class="bi bi-question-lg icon-overlay"></i>
+          <div v-if="showLabels">Matrix Quiz</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Gap Text"
+          @click="$refs.editor?.make('quiz-gap-text')"
+        >
+          <i class="bi bi-body-text"></i>
+          <i class="bi bi-question-lg icon-overlay"></i>
+          <div v-if="showLabels">Gap Text</div>
+        </button>
+      </div>
+
+      <div class="btn-group" role="group" aria-label="Formulas with KaTeX">
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Inline Formula"
+          @click="$refs.editor?.make('formula-inline')"
+        >
+          <i class="bi bi-currency-dollar"></i>
+          <div v-if="showLabels">Inline Formula</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Formula Block"
+          @click="$refs.editor?.make('formula')"
+        >
+          <i class="bi bi-currency-dollar"></i>
+          <i class="bi bi-currency-dollar icon-overlay"></i>
+          <div v-if="showLabels">Formula Block</div>
+        </button>
+      </div>
+
+      <div class="btn-group" role="group" aria-label="ASCII-art drawings">
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="Graph"
+          @click="$refs.editor?.make('graph')"
+        >
+          <i class="bi bi-graph-down"></i>
+          <div v-if="showLabels">Graph</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="ASCII-Art"
+          @click="$refs.editor?.make('ascii')"
+        >
+          <i class="bi bi-boxes"></i>
+          <div v-if="showLabels">ASCII-Art</div>
+        </button>
+      </div>
+
+      <div class="btn-group" role="group" aria-label="MathJS helpers">
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="MathJS - Evaluate Expression (Ctrl+E)"
+          @click="$refs.editor?.make('mathjs-evaluate')"
+        >
+          <i class="bi bi-gear"></i>
+          <div v-if="showLabels">MathJS - Evaluate Expression (Ctrl+E)</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="MathJS - Simplify Expression (Ctrl+M)"
+          @click="$refs.editor?.make('mathjs-simplify')"
+        >
+          <i class="bi bi-gear"></i>
+          <i class="bi bi-lightning-charge icon-overlay"></i>
+          <div v-if="showLabels">MathJS - Simplify Expression (Ctrl+M)</div>
+        </button>
+
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          type="button"
+          title="MathJS - Convert to TeX (Ctrl+O)"
+          @click="$refs.editor?.make('mathjs-tex')"
+        >
+          <i class="bi bi-gear"></i>
+          <i class="bi icon-overlay">TeX</i>
+          <div v-if="showLabels">MathJS - Convert to TeX (Ctrl+O)</div>
+        </button>
+      </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="container-fluid" style="display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
       <a v-if="!embed" class="navbar-brand" href="./" data-link="true">
         <img src="../../assets/logo.png" alt="LiaScript" height="28" />
         <span id="lia-edit">LiaEdit</span>
@@ -638,7 +1116,7 @@ W
           @click="syncViaHttp()"
           title="Publish document"
         >
-          <i class="bi bi-upload"></i>
+          <i class="bi bi-floppy"></i>
         </button>
 
         <button
@@ -648,7 +1126,7 @@ W
           @click="autoPublish = !autoPublish"
           title="Auto publish"
         >
-          <i class="bi bi-upload"></i>
+          <i class="bi bi-robot"></i>
         </button>
 
         <button
@@ -968,6 +1446,7 @@ W
         </div>
       </div>
     </div>
+    </div>
   </nav>
 
   <div class="container p-0" style="max-width: 100%">
@@ -997,7 +1476,7 @@ W
           :content="$props.content"
           ref="editor"
           :connection="$props.connection"
-          :toolbar="!$props.embed"
+          :toolbar="false"
         >
         </Editor>
       </pane>
