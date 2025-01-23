@@ -33,7 +33,7 @@ const fixImageUrls = function() {
   const documentPath = documentId.split('/').slice(0, -1).join('/');
 
   function checkUrlNeedsReplacement(url) {
-    return url && !url.startsWith('blob:') && url.includes(origin) && !url.startsWith(origin + '/liascript/');
+    return url && !url.startsWith('blob:') && ((StorageServerURL && StorageServerURL !== origin) ? url.includes(origin) : !url.includes('/static/')) && !url.startsWith(origin + '/liascript/');
   }
   
   const images = document.querySelectorAll('img,picture');
