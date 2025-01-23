@@ -386,7 +386,8 @@ $$
             endColumn: 1,
           };
 
-          op.text = "#" + (line.startsWith(" ") || line.startsWith("#") ? "" : " ");
+          const headerLevel = data || 1;
+          op.text = "#".repeat(headerLevel) + (line.startsWith(" ") || line.startsWith("#") ? "" : " ");
 
           break;
         }
@@ -606,6 +607,24 @@ I (study) ~[[ am going to study ]]~ harder this term.
               "| Column 1 | Column 2 | Column 3 |\n| -------- | :------: | -------: |\n| Text     |   Text   |     Text |\n\n",
           };
 
+          break;
+        }
+        case "multi-column-table": {
+          console.log("multi-column-table", data);
+          const { cols, rows } = data;
+
+          let tableStr = '\n'
+          // Header row
+          tableStr += '|' + ' Header |'.repeat(cols) + '|\n'
+          // Alignment row
+          tableStr += '|' + ' :--: |'.repeat(cols) + '\n'
+          // Data rows
+          for (let i = 0; i < rows ; i++) {
+            tableStr += '|' + ' Cell |'.repeat(cols) + '\n'
+          }
+          tableStr += '\n'
+
+          op.text = tableStr;
           break;
         }
 
