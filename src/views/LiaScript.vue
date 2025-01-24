@@ -58,7 +58,7 @@ type SyncedFiles = {
 export default {
   name: "LiaScript",
 
-  props: ["storageId", "content", "initialContent", "fileUrl", "connection", "embed", "mode", "enableSync"],
+  props: ["storageId", "content", "initialContent", "fileUrl", "connection", "embed", "mode", "enableSync", "hideLegacyMenu"],
 
   data() {
     let database: Dexie | undefined;
@@ -100,7 +100,7 @@ export default {
       lights: false,
       showLabels: false,
       autoCompile: true,
-      autoPublish: false,
+      autoPublish: true,
       conn: {
         type: connectionType,
         users: 0,
@@ -595,7 +595,7 @@ W
             <i class="bi bi-plus-square"></i> Advanced Elements
           </button>
         </li>
-        <li class="nav-item" role="presentation">
+        <li class="nav-item" role="presentation" v-if="!hideLegacyMenu">
           <button class="nav-link" id="file-tab" data-bs-toggle="tab" data-bs-target="#file" type="button" role="tab"
             aria-controls="file" aria-selected="false">
             <i class="bi bi-save"></i> File

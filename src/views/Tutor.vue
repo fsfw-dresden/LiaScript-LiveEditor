@@ -53,6 +53,6 @@ export default {
 </script>
 
 <template>
-  <LiaScript v-if="data" :initial-content="data" :file-url="fileUrl" :storage-id="fileUrl" :enable-sync="true" >
+  <LiaScript v-if="data" :initial-content="data" :file-url="fileUrl" :storage-id="fileUrl" :enable-sync="true" :hide-legacy-menu="true" >
   </LiaScript>
 </template>
