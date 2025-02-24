@@ -54,7 +54,7 @@ jobs:
           ICE_SERVERS: 
         run: 'npm run build'
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           name: dist
           path: ./dist
@@ -84,16 +84,17 @@ jobs:
           rm dist/artifact.tar
 
       - name: Create release archive
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           cd dist
-          tar -cjf ../liascript-editor.tar.bz2 *
+          tar -cjf ../liascript-editor-${{ github.ref_name }}.tar.bz2 *
           cd ..
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: liascript-editor.tar.bz2
+          files: liascript-editor-${{ github.ref_name }}.tar.bz2
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to GitHub Pages
