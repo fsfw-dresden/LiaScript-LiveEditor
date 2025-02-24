@@ -1,0 +1,39 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: dist
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Extract artifact
+        run: |
+          cd dist
+          tar xf artifact.tar
+          rm artifact.tar
+
+      - name: Create release archive
+        run: |
+          cd dist
+          tar -cjf ../liascript-editor-${{ github.ref_name }}.tar.bz2 *
+          cd ..
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: liascript-editor-${{ github.ref_name }}.tar.bz2
+          generate_release_notes: true
