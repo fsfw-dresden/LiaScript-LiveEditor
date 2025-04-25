@@ -77,7 +77,7 @@ jobs:
           tar -cjf ../liascript-editor-${{ github.ref_name }}.tar.bz2 *
           cd ..
       - name: Upload Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v1
         with:
           files: liascript-editor-${{ github.ref_name }}.tar.bz2
           token: ${{ secrets.GITHUB_TOKEN }}
