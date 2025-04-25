@@ -1,7 +1,7 @@
 {
   "name": "liveeditor",
-  "version": "1.1.0",
-  "description": "Modified LiveEditor for LiaScript that can load and store files locally",
+  "version": "1.2.3",
+  "description": "Modified LiveEditor for LiaScript that can load and store files locally on the file system",
   "scripts": {
     "sw": "npx workbox injectManifest workbox-config.js",
     "build": "rm -rf dist && npm run build:index && npm run purge && npm run sw && npm run build:examples && npm run minify:js",
